@@ -68,6 +68,23 @@ app.post("/api/persons", (req, res) => {
             error: 'content missing'
         })
     }
+    if (!body.name) {
+        return res.status(400).json({
+            error: 'Person name is missing.'
+        })
+    }
+    if (!body.number) {
+        return res.status(400).json({
+            error: 'Person number is missing.'
+        })
+    }
+
+    const searchedPersonIndex = persons.find(person => person.name === body.name);
+    if(searchedPersonIndex != -1){
+        return res.status(400).json({
+            error: 'Person already exists.'
+        })
+    }
 
     const person = {
         id: generateId(),
