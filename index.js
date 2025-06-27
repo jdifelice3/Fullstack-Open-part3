@@ -26,7 +26,15 @@ let persons = [
 ]
 
 app.use(express.json());
-app.use(morgan("combined"));
+
+morgan.token('body', (req) => {
+  return req.method === 'POST' ? JSON.stringify(req.body) : '';
+});
+
+// Use morgan with custom format including the body
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body', {
+  
+}));
 
 app.get("/api/persons", (req, res) => {
     res.send(persons);
