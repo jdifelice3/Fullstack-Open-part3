@@ -24,6 +24,8 @@ let persons = [
     }
 ]
 
+app.use(express.json());
+
 app.get("/api/persons", (req, res) => {
     res.send(persons);
 })
@@ -55,6 +57,28 @@ app.delete("/api/person/:id", (req, res) => {
     res.status(204).end();
 })
 
+app.post("/api/persons", (req, res) => {
+    let id = generateId();
+    //console.log('req', req);
+    const body = req.body;
+    console.log('body',body);
+
+    if (!body) {
+        return res.status(400).json({
+            error: 'content missing'
+        })
+    }
+
+    const person = {
+        id: generateId(),
+        name: body.name, 
+        number: body.number
+    }
+
+    persons = persons.concat(person)
+
+    res.json(persons)
+})
 
 app.get("/info", (req ,res) => {
     let dateTime = Date();
@@ -71,6 +95,12 @@ app.get("/info", (req ,res) => {
 
 })
 
+const generateId = () => {
+  const maxId = persons.length > 0
+    ? Math.max(...persons.map(n => Number(n.id)))
+    : 0
+  return String(maxId + 1)
+}
 
 const PORT = 3001
 app.listen(PORT)
