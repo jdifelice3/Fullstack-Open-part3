@@ -38,8 +38,23 @@ app.get("/api/person/:id", (req, res) => {
         res.status(404).send(`The person with id ${id} was not found.`)
     }
     console.log("person:", person);
-    
+})  
+
+app.delete("/api/person/:id", (req, res) => {
+    const idToRemove = req.params.id; 
+    console.log("idToRemove", idToRemove);
+    const indexToRemove = persons.findIndex(obj => obj.id === idToRemove);
+    console.log("indexToRemove", indexToRemove);
+    // If found, remove it
+    if (indexToRemove !== -1) {
+        persons.splice(indexToRemove, 1);
+    }
+
+    console.log(persons);
+    res.statusMessage = `Array index not found for id=${idToRemove}`;
+    res.status(204).end();
 })
+
 
 app.get("/info", (req ,res) => {
     let dateTime = Date();
