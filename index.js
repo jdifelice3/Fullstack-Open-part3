@@ -28,6 +28,19 @@ app.get("/api/persons", (req, res) => {
     res.send(persons);
 })
 
+app.get("/api/person/:id", (req, res) => {
+    const id = req.params.id;
+    console.log("id:",id);
+    const person = persons.find(person => person.id === id);
+    if(person){
+        res.send(person);
+    } else {
+        res.status(404).send(`The person with id ${id} was not found.`)
+    }
+    console.log("person:", person);
+    
+})
+
 app.get("/info", (req ,res) => {
     let dateTime = Date();
     let html = `
