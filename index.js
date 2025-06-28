@@ -26,6 +26,7 @@ let persons = [
 ]
 
 app.use(express.json());
+app.use(express.static('dist'));
 
 morgan.token('body', (req) => {
   return req.method === 'POST' ? JSON.stringify(req.body) : '';
@@ -68,6 +69,7 @@ app.delete("/api/person/:id", (req, res) => {
 })
 
 app.post("/api/persons", (req, res) => {
+    console.log('request',req);
     let id = generateId();
     //console.log('req', req);
     const body = req.body;
@@ -88,8 +90,10 @@ app.post("/api/persons", (req, res) => {
             error: 'Person number is missing.'
         })
     }
-
-    const searchedPersonIndex = persons.find(person => person.name === body.name);
+    console.log('body.name',body.name);
+    console.log('persons', persons);
+    const searchedPersonIndex = persons.findIndex(person => person.name === body.name);
+    console.log('searchedPersonIndex', searchedPersonIndex);
     if(searchedPersonIndex != -1){
         return res.status(400).json({
             error: 'Person already exists.'
