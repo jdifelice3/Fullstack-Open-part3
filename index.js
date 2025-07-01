@@ -1,3 +1,5 @@
+const {errorHandler} = require('./errorHandlers/errorHandler');
+
 const express = require('express')
 const morgan = require("morgan")
 require('dotenv').config();
@@ -6,7 +8,6 @@ const connectDb = require('./db');
 const app = express(); 
 app.use(express.json());
 app.use(express.static('dist'));
-
 
 connectDb(); 
 
@@ -19,7 +20,9 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
   
 }));
 
-app.get("/api/persons", async(req, res) => {
+app.use(errorHandler);
+
+app.get("/api/persons", async(req, res, next) => {
     try {
         console.log('in api/persons');
         console.log(typeof Person.getPersons); 
@@ -32,7 +35,7 @@ app.get("/api/persons", async(req, res) => {
     }
 })
 
-app.get("/api/persons/:name", async(req, res) => {
+app.get("/api/persons/:name", async(req, res, next) => {
     const name = req.params.name;
     console.log("name:",name);
     const person = await Person.getPersons(name); 
@@ -44,22 +47,33 @@ app.get("/api/persons/:name", async(req, res) => {
     console.log("person:", person);
 })  
 
-app.delete("/api/persons/:id", (req, res) => {
-    const idToRemove = req.params.id; 
-    console.log("idToRemove", idToRemove);
-    const indexToRemove = persons.findIndex(obj => obj.id === idToRemove);
-    console.log("indexToRemove", indexToRemove);
-    // If found, remove it
-    if (indexToRemove !== -1) {
-        persons.splice(indexToRemove, 1);
+app.get("/api/persons/id/:id", async(req, res, next) => {
+    const id = req.params.id;
+    console.log("name:",id);
+    const person = await Person.getPersonById(id); 
+    if(person){
+        res.send(person);
+    } else {
+        res.status(404).send(`The person with name ${id} was not found.`)
     }
+    console.log("person:", person);
+})  
 
-    console.log(persons);
-    res.statusMessage = `Array index not found for id=${idToRemove}`;
-    res.status(204).end();
+app.delete("/api/persons/:id", async(req, res, next) => {
+    const id = req.params.id; 
+    console.log("id", id);
+    Person.deleteOne({ _id: id })
+        .then((result) => {
+            console.log('Delete result:', result);
+            res.status(204).end();
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).send('Server error');
+        });
 })
 
-app.post("/api/persons", async(req, res) => {
+app.post("/api/persons", async(req, res, next) => {
     const body = req.body;
     console.log('body',body);
 
@@ -78,18 +92,8 @@ app.post("/api/persons", async(req, res) => {
             error: 'Person number is missing.'
         })
     }
-    // console.log('body.name',body.name);
-    // console.log('persons', persons);
-    // const searchedPersonIndex = persons.findIndex(person => person.name === body.name);
-    // console.log('searchedPersonIndex', searchedPersonIndex);
-    // if(searchedPersonIndex != -1){
-    //     return res.status(400).json({
-    //         error: 'Person already exists.'
-    //     })
-    // }
-
+   
     let person = new Person();
-    //person.id = Person.generateId();
     person.name = body.name;
     person.number = body.number;
 

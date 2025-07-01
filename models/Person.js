@@ -25,6 +25,17 @@ phoneBookSchema.statics.getPersons = async function (search) {
   return result;
 };
 
+phoneBookSchema.statics.getPersonById = async function(id) {
+  let result;
+    if(id){
+      result = await Person.find({
+        _id: id
+      });
+    console.log('result', result);
+    return result;
+    }
+}
+
 phoneBookSchema.statics.generateId = async function (idLength) {
   const chars = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890";
   const randomArray = Array.from(
@@ -39,13 +50,5 @@ phoneBookSchema.statics.generateId = async function (idLength) {
 const Person = mongoose.model('Phone', phoneBookSchema);
 
 console.log('Person',Person);
-
-// phoneBookSchema.set('toJSON', {
-//   transform: (document, returnedObject) => {
-//     returnedObject.id = returnedObject._id.toString()
-//     delete returnedObject._id
-//     delete returnedObject.__v
-//   }
-// })
 
 module.exports = Person;
