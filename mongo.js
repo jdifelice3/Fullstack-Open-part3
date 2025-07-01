@@ -1,32 +1,19 @@
 const mongoose = require('mongoose')
+const Person = require('./models/Person');
+require('dotenv').config();
 const name = process.argv[3];
 const number = process.argv[4];
+let id = "";
 
+console.log("encoded pwd", process.argv[2]);
 
-console.log("encoded pwd", encodeURIComponent(process.argv[2]))
-
-if (process.argv.length < 3) {
-  console.log('give password as argument')
-  process.exit(1)
-}
-
-const password = process.argv[2]
-
-const url = `mongodb+srv://johndifelice:${password}@cluster0.2lujjkr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
+const url = process.env.MONGODB_URI;
+console.log('url',url);
 
 mongoose.set('strictQuery',false)
 
-mongoose.connect(url)
+mongoose.connect(url);
 
-const phoneBookSchema = new mongoose.Schema({
-  name: String,
-  number: String
-})
-
-const Person = mongoose.model('Phone', phoneBookSchema);
-
-console.log('process.argv.length',process.argv.length);
-console.log(process.argv.length <=3);
 if(process.argv.length <= 3){
     //return the list of persons in the db
     Person.find({}).then(result => {
@@ -39,6 +26,7 @@ if(process.argv.length <= 3){
 }
 
 const person = new Person({
+  id: Person.generateId(30),
   name: name,
   number: number,
 })
